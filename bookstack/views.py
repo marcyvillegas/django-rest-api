@@ -7,18 +7,25 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
-
 from django.shortcuts import get_object_or_404
 
+# User authentication
 @api_view(['POST'])
 def login(request):
     user = get_object_or_404(User, username=request.data['username'])
     
     if not user.check_password(request.data['password']):
         return Response({"detail": "Not found"}, status=status.HTTP_404_NOT_FOUND)
+    
     token = Token.objects.get_or_create(user=user)
     serializer = UserSerializer(instance=user)
     return Response({"token": token.key, "user": serializer.data})
+
+@api_view(['POST'])
+def logout(request):
+    token = request.data.get('token') # Get the user's token from the request data
+    Token.objects.filter(key=token).delete() # Delete the token from the database
+    return Response({'message': 'Logout successful'})
 
 @api_view(['POST'])
 def signup(request):
@@ -35,6 +42,7 @@ def signup(request):
         return Response({"token": token.key, "user": serializer.data})
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+# Book
 @api_view(['GET', 'POST'])
 def bookList(request):
     
