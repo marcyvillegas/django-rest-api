@@ -15,11 +15,13 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, re_path
 from bookstack import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('books/', views.bookList),
-    path('books/<int:id>', views.bookDetail)
+    path('books/<int:id>', views.bookDetail),
+    re_path('login', views.login),
+    re_path('signup', views.signup)
 ]
